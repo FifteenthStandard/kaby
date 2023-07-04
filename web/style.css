@@ -1,0 +1,29 @@
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+}
+
+#editor {
+  background-color: #88888810;
+  box-sizing: border-box;
+  font-size: 1.3em;
+  margin: 0 auto 0 auto;
+  max-width: 100%;
+  min-height: 100%;
+  outline: none;
+  padding: 1ch;
+  white-space: pre-wrap;
+  width: 82ch;
+}
+
+#command-palette {
+  margin-top: 2em;
+  border: none;
+}
+
+#file {
+  overflow-y: hidden;
+  width: 100%;
+  appearance: none;
+}

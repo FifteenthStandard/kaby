@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="color-scheme" content="dark light">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kaybee</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="./app.js"></script>
+</head>
+<body>
+  <pre id="editor" contenteditable="plaintext-only" autofocus="true" spellcheck="false" oninput="handleEditorInput(event)"></pre>
+  <dialog id="command-palette" onclose="handleCommandPaletteClose(event)" oncancel="handleCommandPaletteCancel(event)">
+    <form id="files-form" onsubmit="handleCommandPaletteSubmit(event)">
+      <input oninput="setCommandPaletteFiles(event.target.value)">
+      <br>
+      <select name="file" id="file" size="10" onclick="selectFile(event.target.value)"></select>
+      <input type="submit" hidden>
+    </form>
+  </dialog>
+</body>
+</html>
