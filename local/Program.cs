@@ -2,29 +2,19 @@ using FifteenthStandard.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration
+    .AddJsonFile("appsettings.json")
+    .AddJsonFile($"appsettings.Development.json")
+    .AddEnvironmentVariables(prefix: "kaby_")
+    .AddCommandLine(args);
+
 builder.Services.AddCors(opts => opts.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 
 var app = builder.Build();
 
-string? root;
-if (args.Length > 0)
-{
-    root = args[0];
-    Console.WriteLine($"Setting root from arguments: {root}");
-}
-else if (!string.IsNullOrWhiteSpace(root = Environment.GetEnvironmentVariable("kaybee")))
-{
-    Console.WriteLine($"Setting root from environment variable: {root}");
-}
-else if (!string.IsNullOrWhiteSpace(root = app.Configuration?.GetValue<string>("root")))
-{
-    Console.WriteLine($"Setting root from config: {root}");
-}
-else
-{
-    root = Environment.CurrentDirectory;
-    Console.WriteLine($"Setting root from current directory: {root}");
-}
+var root = app.Configuration["Root"] ?? Environment.CurrentDirectory;
+
+Console.WriteLine($"Setting content root: {root}");
 
 IBlobStore? blobStore = null;
 if (root.StartsWith("s3://"))
@@ -35,7 +25,7 @@ if (root.StartsWith("s3://"))
 else if (root.StartsWith("DefaultEndpointsProtocol"))
 {
     Console.WriteLine("Using Azure Storage storage");
-    blobStore = new AzureBlobStore(root, "kaybee");
+    blobStore = new AzureBlobStore(root, "kaby");
 }
 else
 {
@@ -46,20 +36,33 @@ else
 app.UseCors();
 
 app.MapGet(
+    "/",
+    async () =>
+    {
+        var paths = await blobStore.ListAsync();
+        Console.WriteLine($"GET / - - - 200");
+        return Results.Content(
+            string.Join('\n', paths),
+            "text/plain",
+            System.Text.Encoding.UTF8,
+            200);
+    });
+
+app.MapGet(
     "/{filename}",
     async (string filename) =>
     {
         var blob = await blobStore.GetStringAsync(filename);
         if (blob == null)
         {
-            Console.WriteLine($"GET {filename} - - - 404");
+            Console.WriteLine($"GET /{filename} - - - 404");
             return Results.NotFound();
         }
 
-        Console.WriteLine($"GET {filename} - - - 200");
+        Console.WriteLine($"GET /{filename} - - - 200");
         return Results.Content(
             blob,
-            "text/markdown",
+            "text/plain",
             System.Text.Encoding.UTF8,
             200);
     });
@@ -73,8 +76,17 @@ app.MapPut(
             var blob = await reader.ReadToEndAsync();
             await blobStore.PutStringAsync(filename, blob);
         }
-        Console.WriteLine($"PUT {filename} - - - 204    ");
+        Console.WriteLine($"PUT /{filename} - - - 204    ");
         return  Results.NoContent();
+    });
+
+app.MapDelete(
+    "/{filename}",
+    async (string filename, HttpContext context) =>
+    {
+        await blobStore.RemoveAsync(filename);
+        Console.WriteLine($"DELETE /{filename} - - - 204    ");
+        return Results.NoContent();
     });
 
 app.Run();

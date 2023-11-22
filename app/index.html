@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="color-scheme" content="dark light">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kaby</title>
+  <script src="./js/app.js" type="module"></script>
+  <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+<pre
+  id="editor"
+  contenteditable="plaintext-only"
+  autofocus="true"
+  spellcheck="false"
+>
+</pre>
+
+<dialog id="file-picker" class="palette">
+  <form>
+    <input name="search">
+    <select name="path" required></select>
+    <input type="submit" hidden>
+  </form>
+</dialog>
+
+<dialog id="command-palette" class="palette">
+  <form>
+    <input name="input">
+    <select name="command" required></select>
+    <input type="submit" hidden>
+  </form>
+</dialog>
+
+<dialog id="choose-storage" oncancel="handleModalCancel(event)">
+  <form onsubmit="handleChooseStorageSubmit(event)">
+    <h1>Welcome to Kaby!</h1>
+    <p>
+      To get started, please choose how you would like to store your files.
+    </p>
+    <input type="submit" name="IndexedDB" value="Browser storage">
+    <input type="submit" name="FileSystem" value="File system">
+    <input type="submit" name="ApiClient" value="Self-hosted API">
+    <input type="submit" name="OneDrive" value="Microsoft OneDrive">
+  </form>
+</dialog>
+</body>
+</html>
